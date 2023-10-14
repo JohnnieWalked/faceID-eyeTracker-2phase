@@ -13,22 +13,45 @@ import './styles.scss';
 
 function App() {
   const [isCalibration, setIsCalibration] = useState(false);
+  const [userXYArea, setUserXYArea] = useState(null);
 
   function handleClickCalibration() {
     setIsCalibration(true);
+  }
+
+  async function webgazerStart() {
+    indexedDB.deleteDatabase('localforage');
+    await webgazer.begin();
+    const webgazerVideo = document.getElementById('webgazerVideoContainer');
+    webgazerVideo.style.inset = '50%';
+    webgazerVideo.style.transform = 'translateX(-50%) translateY(-50%)';
   }
 
   useEffect(() => {
     if (!isCalibration) return;
     if (isCalibration === 'done') {
       console.log('DONE');
+      webgazer.setGazeListener((data) => {
+        if (data === null) return;
+        const predictionX = data.x;
+        const predictionY = data.y;
+        const userArea = JSON.parse(userXYArea);
+        if (isCalibration === 'done') {
+          if (userArea.x < predictionX && userArea.width > predictionX) {
+            if (userArea.y < predictionY && userArea.height > predictionY) {
+              alert('SUCCESSFUL IDENTIFICATION!');
+            }
+          }
+        }
+      });
     } else {
-      indexedDB.deleteDatabase('localforage');
-      webgazer
-        .setGazeListener((data, timestamp) => console.log(data, timestamp))
-        .begin();
+      webgazerStart();
     }
   }, [isCalibration]);
+
+  useEffect(() => {
+    setUserXYArea(localStorage.getItem('XY-ID'));
+  }, []);
 
   return (
     <>

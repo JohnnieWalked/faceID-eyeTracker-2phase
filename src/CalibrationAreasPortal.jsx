@@ -21,16 +21,18 @@ function CalibrationAreasPortal({ handleCalibration }) {
 
   function renderClickAreas() {
     return [...Array(8)].map((_, index) => {
-      <ClickArea
-        totalCalibrationCounter={counter}
-        setTotalCalibrationCounter={setCounter}
-        key={index}
-      />;
+      return (
+        <ClickArea
+          areaNumber={index + 1}
+          setTotalCounter={setCounter}
+          key={index}
+        />
+      );
     });
   }
 
   return createPortal(
-    <div className="calibration_wrapper">{renderClickAreas()}</div>,
+    <div className="clickWrapper">{renderClickAreas()}</div>,
 
     document.querySelector('.modal-container')
   );
